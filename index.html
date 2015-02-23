@@ -1,5 +1,6 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 <script src="js/three.js"></script>
+<link rel="stylesheet" href="stylesheets/app.css" />
 
 <style>
     body{
@@ -36,10 +37,21 @@
                 windowWidth,
                 windowHeight,
                 i,
-                NUM_CIRCLES = 50;
+                randomIconIndex,
+                icons,
+                NUM_CIRCLES = 20;
 
             windowWidth = $(window).width();
             windowHeight = $(window).height();
+
+            icons = [
+                'scss',
+                'sass',
+                'html',
+                'java',
+                'mysql',
+                'folder'
+            ]
 
             console.log("Starting window up at " + windowWidth, windowHeight);
 
@@ -50,18 +62,19 @@
                 this.vy = 0;//Math.random() * 2 - 1;
                 this.angle = Math.random() * 3.14;
                 this.speed = 0.01;
-                this.$ = $("<div class='circle'></div");
+                this.$ = $("<div class='document'></div");
                 this.$.offset({
                     left: this.x,
                     top: this.y
                 });
+                randomIconIndex = parseInt(Math.random() * icons.length);
+                this.$.addClass(icons[randomIconIndex]);
             }
 
             circles = []
             for (i = 0; i < NUM_CIRCLES; i += 1) {
                 circles.push(new Circle());
             }
-
 
             // ASSIGN RANDOM START POSITIONS
             for (i = 0; i < circles.length; i += 1) {
@@ -76,42 +89,48 @@
                     v1,
                     v2,
                     otherCircle,
-                    ray;
+                    ray,
+                    iterations,
+                    tt;
 
-                for (i = 0; i < circles.length; i += 1) {
-                    circle = circles[i];
-                    $circle = circle.$;
+                iterations = 10;
 
-                    v1 = new THREE.Vector3(circle.x, circle.y, 0);
-                    // circle.x += Math.cos(circle.angle) * circle.vx;
-                    // circle.y += Math.sin(circle.angle) * circle.vy;
+                for (tt = 0; tt < iterations; tt += 1) {
+                    for (i = 0; i < circles.length; i += 1) {
+                        circle = circles[i];
+                        $circle = circle.$;
 
-                    // circle.vx += circle.SPEED;
-                    // circle.vy += circle.SPEED;
+                        v1 = new THREE.Vector3(circle.x, circle.y, 0);
+                        // circle.x += Math.cos(circle.angle) * circle.vx;
+                        // circle.y += Math.sin(circle.angle) * circle.vy;
 
-                    for (j = 0; j < circles.length; j += 1) {
-                        if (i === j) continue;
-                        otherCircle = circles[j];
-                        v2 = new THREE.Vector3(otherCircle.x, otherCircle.y, 0);
-                        distance = v1.distanceTo(v2);
+                        // circle.vx += circle.SPEED;
+                        // circle.vy += circle.SPEED;
 
-                        if (distance > 200) {
-                            continue;
+                        for (j = 0; j < circles.length; j += 1) {
+                            if (i === j) continue;
+                            otherCircle = circles[j];
+                            v2 = new THREE.Vector3(otherCircle.x, otherCircle.y, 0);
+                            distance = v1.distanceTo(v2);
+
+                            if (distance > 200) {
+                                continue;
+                            }
+
+                            ray = v2.clone().sub(v1);
+                            ratio = 100 * 1 / Math.max(200, distance);
+                            v1.sub(ray.normalize().multiplyScalar(ratio));
+
+                            circle.x = v1.x;
+                            circle.y = v1.y;
                         }
 
-                        ray = v2.clone().sub(v1);
-                        ratio = 50 * 1 / Math.max(200, distance);
-                        v1.sub(ray.normalize().multiplyScalar(ratio));
-
-                        circle.x = v1.x;
-                        circle.y = v1.y;
+                        circle.$.offset({
+                            left: circle.x,
+                            top: circle.y
+                        });
                     }
-
-                    circle.$.offset({
-                        left: circle.x,
-                        top: circle.y
-                    });
-                }
+                } // TT
             }
 
             setInterval(function () {
