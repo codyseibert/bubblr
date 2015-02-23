@@ -1,0 +1,124 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+<script src="js/three.js"></script>
+
+<style>
+    body{
+        background-color: black;
+    }
+
+    .circle{
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: white;
+        box-shadow: 1px 1px 5px #888;
+        display: inline-block;
+        left: 0px;
+        top: 0px;
+    }
+</style>
+
+<html>
+    <body>
+
+
+    </body>
+
+    <script>
+
+        $(document).ready(function() {
+
+            var createCircle,
+                Circle,
+                circles,
+                circle,
+                windowWidth,
+                windowHeight,
+                i,
+                NUM_CIRCLES = 50;
+
+            windowWidth = $(window).width();
+            windowHeight = $(window).height();
+
+            console.log("Starting window up at " + windowWidth, windowHeight);
+
+            Circle = function () {
+                this.x = Math.random() * windowWidth;
+                this.y = Math.random() * windowHeight;
+                this.vx = 0;//Math.random() * 2 - 1;
+                this.vy = 0;//Math.random() * 2 - 1;
+                this.angle = Math.random() * 3.14;
+                this.speed = 0.01;
+                this.$ = $("<div class='circle'></div");
+                this.$.offset({
+                    left: this.x,
+                    top: this.y
+                });
+            }
+
+            circles = []
+            for (i = 0; i < NUM_CIRCLES; i += 1) {
+                circles.push(new Circle());
+            }
+
+
+            // ASSIGN RANDOM START POSITIONS
+            for (i = 0; i < circles.length; i += 1) {
+                circle = circles[i];
+                $('body').append(circle.$);
+            }
+
+
+            function update(){
+                var circle,
+                    $circle,
+                    v1,
+                    v2,
+                    otherCircle,
+                    ray;
+
+                for (i = 0; i < circles.length; i += 1) {
+                    circle = circles[i];
+                    $circle = circle.$;
+
+                    v1 = new THREE.Vector3(circle.x, circle.y, 0);
+                    // circle.x += Math.cos(circle.angle) * circle.vx;
+                    // circle.y += Math.sin(circle.angle) * circle.vy;
+
+                    // circle.vx += circle.SPEED;
+                    // circle.vy += circle.SPEED;
+
+                    for (j = 0; j < circles.length; j += 1) {
+                        if (i === j) continue;
+                        otherCircle = circles[j];
+                        v2 = new THREE.Vector3(otherCircle.x, otherCircle.y, 0);
+                        distance = v1.distanceTo(v2);
+
+                        if (distance > 200) {
+                            continue;
+                        }
+
+                        ray = v2.clone().sub(v1);
+                        ratio = 50 * 1 / Math.max(200, distance);
+                        v1.sub(ray.normalize().multiplyScalar(ratio));
+
+                        circle.x = v1.x;
+                        circle.y = v1.y;
+                    }
+
+                    circle.$.offset({
+                        left: circle.x,
+                        top: circle.y
+                    });
+                }
+            }
+
+            setInterval(function () {
+                update();
+            }, 10);
+
+        });
+
+    </script>
+</html>
