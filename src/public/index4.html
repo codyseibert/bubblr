@@ -60,12 +60,12 @@
         var m = [40, 240, 40, 240];
 
         // var force = d3.layout.force()
-        //     .linkDistance(function (d) {
-        //         if (getImage(d.target) === "images/folder.svg" && getImage(d.source) === "images/folder.svg") {
-        //             return 1000;
-        //         }
-        //         return 50;
-        //     })
+        // .linkDistance(function (d) {
+        //     if (getImage(d.target) === "images/folder.svg" && getImage(d.source) === "images/folder.svg") {
+        //         return 1000;
+        //     }
+        //     return 50;
+        // })
         //     .linkStrength(0.1)
         //     // .friction(0.9)
         //     .charge(-200)
@@ -122,6 +122,17 @@
             }
         };
 
+        String.prototype.hashCode = function() {
+            var hash = 0, i, chr, len;
+            if (this.length == 0) return hash;
+            for (i = 0, len = this.length; i < len; i++) {
+                chr   = this.charCodeAt(i);
+                hash  = ((hash << 5) - hash) + chr;
+                hash |= 0; // Convert to 32bit integer
+            }
+            return hash;
+        };
+
         d3.select("svg")
             .call(
                 d3.behavior.zoom()
@@ -142,17 +153,14 @@
                 var newNode = {
                     id: n.id,
                     short: n.short,
-                    x: 0,
-                    y: 0
+                    x: n.id.hashCode() % 400,
+                    y: n.parent.hashCode() % 400
                 };
 
                 nodes.push(newNode);
 
                 idMap[n.id] = newNode
             }
-
-            console.log(json);
-            console.log(idMap);
 
             for (i = 0; i < json.length; i += 1) {
                 var n = json[i];
