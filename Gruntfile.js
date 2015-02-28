@@ -82,6 +82,19 @@ module.exports = function(grunt) {
             }
         },
 
+        watch: {
+            coffee: {
+                files: [
+                    "src/**/*.coffee"
+                ],
+                tasks: ['coffee']
+            },
+
+            jade:
+                files: ['src/**/*.jade'],
+                tasks: []
+        }
+
         cssmin: {
             prod: {
                 options: {
