@@ -45,6 +45,7 @@
 
 <body>
     <div id="box"></div>
+
     <div id="panel">
         <input id="url" type="text" placeholder="url">
     </div>
@@ -58,19 +59,25 @@
         var h = 300;
         var m = [40, 240, 40, 240];
 
+        // var force = d3.layout.force()
+        //     .linkDistance(function (d) {
+        //         if (getImage(d.target) === "images/folder.svg" && getImage(d.source) === "images/folder.svg") {
+        //             return 1000;
+        //         }
+        //         return 50;
+        //     })
+        //     .linkStrength(0.1)
+        //     // .friction(0.9)
+        //     .charge(-200)
+        //     .gravity(0.05)
+        //     // .theta(2)
+        //     // .alpha(1)
+        //     .on("tick", tick);
+
         var force = d3.layout.force()
-            .linkDistance(function (d) {
-                if (getImage(d.target) === "images/folder.svg" && getImage(d.source) === "images/folder.svg") {
-                    return 100;
-                }
-                return 50;
-            })
-            .linkStrength(0.1)
-            // .friction(0.9)
-            .charge(-200)
-            .gravity(0.1)
-            // .theta(2)
-            // .alpha(1)
+            .size([w, h])
+            .charge(-400)
+            .linkDistance(50)
             .on("tick", tick);
 
         var nodes = force.nodes(),
@@ -215,8 +222,8 @@
                 })
                 .attr("x", -8)
                 .attr("y", -8)
-                // .on("click", click)
-                //.on("dblclick", dblclick)
+                .on("click", click)
+                // .on("dblclick", dblclick)
                 .attr("width", 20)
                 .attr("height", 20);
 
@@ -262,9 +269,9 @@
             var checker = function () {
 
                 if (clicks >= 2) {
-                    for (var i = 0; i < 20; i += 1) {
-                        dblclick(d);
-                    }
+                    // for (var i = 0; i < 20; i += 1) {
+                    //     dblclick(d);
+                    // }
                 } else {
                     d.visible = !d.visible;
                     if (d.visible) {
