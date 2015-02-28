@@ -59,9 +59,13 @@
         var m = [40, 240, 40, 240];
 
         var force = d3.layout.force()
+            .linkDistance(500)
+            .linkStrength(0.8)
+            // .friction(0.9)
             .charge(-5000)
-            .linkDistance(300)
-            .size([w, h])
+            // .gravity(0.1)
+            // .theta(2)
+            // .alpha(1)
             .on("tick", tick);
 
         var nodes = force.nodes(),
@@ -147,7 +151,7 @@
                 .attr("x", -8)
                 .attr("y", -8)
                 .on("click", click)
-                .on("dblclick", dblclick)
+                //.on("dblclick", dblclick)
                 .attr("width", 60)
                 .attr("height", 60);
 
@@ -185,14 +189,33 @@
             s4() + '-' + s4() + s4() + s4();
         }
 
+        var clicks = 0;
+        var timeout = null;
         function click (d) {
-            d.visible = !d.visible;
-            if (d.visible) {
-                d3.select(this.parentNode).select('.rect').style("display", "inline");
-            } else {
-                d3.select(this.parentNode).select('.rect').style("display", "none");
+            clicks += 1;
+
+            var checker = function () {
+
+                if (clicks >= 2) {
+                    for (var i = 0; i < 20; i += 1) {
+                        dblclick(d);
+                    }
+                } else {
+                    d.visible = !d.visible;
+                    if (d.visible) {
+                        d3.select(this.parentNode).select('.rect').style("display", "inline");
+                    } else {
+                        d3.select(this.parentNode).select('.rect').style("display", "none");
+                    }
+                }
+
+                clicks = 0;
+                timeout = null;
             }
-            restart();
+
+            if (timeout === null) {
+                timeout = setTimeout(checker.bind(this), 200);
+            }
         }
 
         function dblclick(d) {
