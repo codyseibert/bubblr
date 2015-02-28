@@ -1,0 +1,41 @@
+<!--
+    [] - Button Icon
+    T - Text Icon
+-->
+
+<!-- [] Back -->
+<button class="mb4"
+        ng-click="back()"
+        ng-show="!isFirstQuestion()">
+    Previous Question
+</button>
+
+<!-- T Question -->
+<h1>
+    Question #{{questionNumber}}
+</h1>
+
+<h3>
+    {{question.text}}
+</h3>
+
+<!-- [] True -->
+<button ng-click="select(true)"
+        ng-class="{enabled: selected === true}">
+    True
+</button>
+
+<!-- [] False -->
+<button class="mb4"
+        ng-click="select(false)"
+        ng-class="{enabled: selected === false}">
+    False
+</button>
+
+<br>
+
+<!-- [] Submit -->
+<button ng-show="selected !== undefined"
+        ng-click="saveAnswer()">
+    Save Answer
+</button>

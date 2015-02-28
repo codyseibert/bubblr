@@ -1,0 +1,78 @@
+{
+    "icons": [
+        {
+            "name": "folder"
+        },
+        {
+            "name": "css"
+        },
+        {
+            "name": "javascript"
+        },
+        {
+            "name": "scss"
+        },
+        {
+            "name": "mysql"
+        }
+    ],
+    "nodes":[
+        {
+            "name":"stylesheets",
+            "type": 0,
+            "group":1
+        },
+        {
+            "name":"app.css",
+            "type": 1,
+            "group":1
+        },
+        {
+            "name":"js",
+            "type": 0,
+            "group":1
+        },
+        {
+            "name":"app.js",
+            "type": 2,
+            "group":1
+        },
+        {
+            "name":"three.js",
+            "type": 2,
+            "group":1
+        },
+        {
+            "name":"bubblr",
+            "type": 0,
+            "group":1
+        }
+    ],
+    "links":[
+        {
+            "source":1,
+            "target":0,
+            "value":1
+        },
+        {
+            "source":2,
+            "target":3,
+            "value":8
+        },
+        {
+            "source":2,
+            "target":4,
+            "value":80
+        },
+        {
+            "source":0,
+            "target":5,
+            "value":80
+        },
+        {
+            "source":2,
+            "target":5,
+            "value":80
+        }
+    ]
+}

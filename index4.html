@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+    background-color: #333;
+    color: white;
+}
+
+.link {
+    stroke: #ccc;
+}
+
+.node text {
+    pointer-events: none;
+    font: 10px sans-serif;
+}
+
+.white {
+    fill: rgb(255,255,255);
+    stroke: rgb(255,255,255);
+}
+
+
+</style>
+<body>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+
+    var width = 960,
+        height = 1000;
+
+    var force,
+        drag,
+        svg,
+        link,
+        node,
+        dragstart,
+        dragend,
+        dblclick;
+
+    force = d3.layout.force()
+        .size([width, height])
+        .charge(-1000)
+        .linkDistance(400)
+        .on("tick", tick);
+
+    drag = force.drag()
+        .on("dragstart", dragstart)
+        .on("dragend", dragend);
+
+    svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    link = svg.selectAll(".link");
+
+    node = svg.selectAll(".node");
+
+    dragstart = function (d) {
+        d3.select(this).classed("fixed", d.fixed = true);
+    }
+
+    dragend = function (d) {
+        d3.select(this).classed("fixed", d.fixed = false);
+    }
+
+    dblclick = function (d) {
+        d3.select(this).classed("fixed", d.fixed = false);
+    }
+
+
+    // UPDATE FUNCTIONS
+    function tick() {
+        link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+        node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+    }
+
+    // INITIALIZE D3
+    d3.json("graph.json", function(error, graph) {
+        force
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .start();
+
+        link = link.data(graph.links)
+            .enter().append("line")
+            .attr("class", "link");
+
+        node = node.data(graph.nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 30)
+            .on("dblclick", dblclick)
+            .call(drag);
+
+        node.append("image")
+            .attr("xlink:href", function (d) {
+                return "images/" + graph.icons[d.type].name + ".svg";
+            })
+            .attr("x", -8)
+            .attr("y", -8)
+            .attr("width", 16)
+            .attr("height", 16);
+    });
+
+</script>
