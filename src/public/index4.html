@@ -13,7 +13,15 @@
     }
 
     .node {
-        fill: #000;
+        fill: green;
+    }
+
+    .node .text{
+        color: red;
+    }
+
+    .text {
+        color: orange;
     }
 
     .cursor {
@@ -25,6 +33,7 @@
     .link {
         stroke: #999;
     }
+
 </style>
 
 <body>
@@ -39,18 +48,14 @@
 
         //var color = d3.scale.category10();
 
-        var nodes = [],
-            links = [];
-
-
-
         var force = d3.layout.force()
-            .nodes(nodes)
-            .links(links)
             .charge(-1000)
             .linkDistance(120)
             .size([w, h])
             .on("tick", tick);
+
+        var nodes = force.nodes();
+        var links = force.links();
 
         var drag = force.drag()
             .on("dragstart", dragstart)
@@ -108,7 +113,7 @@
                 return d.id;
             });
             node.enter()
-                .append("circle")
+                .append("svg:circle")
                 .attr("r", 8)
                 .attr("class", "node")
                 .on("dblclick", dblclick)
@@ -117,6 +122,14 @@
                     return d.id + ""
                 })
                 .call(drag);
+
+            node.append("svg:text")
+                .attr("class", "text")
+                .attr("dx", 12)
+                .attr("dy", ".35em")
+                .text(function(d) {
+                    return "testing";
+                });
             node.exit().remove();
 
             force.start();
