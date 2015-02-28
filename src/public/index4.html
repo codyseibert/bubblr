@@ -1,75 +1,145 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+
 <style>
-    .link {
-        stroke: #000;
-        stroke-width: 1.5px;
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+
+    #box {
+        width: 100%;
+        height: 100%;
     }
 
     .node {
-        cursor: move;
-        fill: #ccc;
-        stroke: #000;
-        stroke-width: 1.5px;
+        fill: #000;
     }
 
-    .node.fixed {
-        fill: #f00;
+    .cursor {
+        fill: none;
+        stroke: brown;
+        pointer-events: none;
+    }
+
+    .link {
+        stroke: #999;
     }
 </style>
 
-
 <body>
+    <div id="box"></div>
+
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script>
 
-        var width = 960,
-            height = 500;
+        var w = 500,
+            h = 500,
+            m = [40, 240, 40, 240];
+
+        //var color = d3.scale.category10();
+
+        var nodes = [],
+            links = [];
+
+
 
         var force = d3.layout.force()
-            .size([width, height])
-            .charge(-400)
-            .linkDistance(40)
+            .nodes(nodes)
+            .links(links)
+            .charge(-1000)
+            .linkDistance(120)
+            .size([w, h])
             .on("tick", tick);
 
         var drag = force.drag()
             .on("dragstart", dragstart)
             .on("dragend", dragend);
 
-        var svg = d3.select("body").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+        var vis = d3.select("#box").append("svg:svg")
+                .attr("class","svg_container")
+                .style("overflow", "scroll")
+                .style("background-color","#EEEEEE")
+                .attr("viewBox", "0 0 " + w + " " + h)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+            .append("svg:g")
+                .attr("class", "drawarea")
+            .append("svg:g")
+                .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-        var link = svg.selectAll(".link"),
-            node = svg.selectAll(".node");
+        // var svg = d3.select("#box").append("svg")
+        //     .attr("class","svg_container")
+        //     .attr("viewBox", "0 0 " + width + " " + height )
+        //     .attr("preserveAspectRatio", "xMinYMin")
+        //     .call(d3.behavior.zoom()
+        //             .scaleExtent([0.5, 5])
+        //             .on("zoom", zoom));
 
-        d3.json("json/graph.json", function(error, graph) {
-            force
-                .nodes(graph.nodes)
-                .links(graph.links)
-                .start();
+        var node = vis.selectAll(".node"),
+            link = vis.selectAll(".link");
 
-            link = link.data(graph.links)
-                .enter().append("line")
+        d3.select("svg")
+            .call(
+                d3.behavior.zoom()
+                .on("zoom", zoom)
+            ).on("dblclick.zoom", null);
+
+        function createNode () {
+            return {
+                id: guid(),
+                x: Math.random()*400,
+                y: Math.random()*400
+            }
+        };
+
+        nodes.push(createNode());
+        start();
+
+        function start() {
+            link = link.data(force.links(), function(d) {
+                return d.source.id + "-" + d.target.id;
+            });
+            link.enter()
+                .insert("line", ".node")
                 .attr("class", "link");
+            link.exit().remove();
 
-            node = node.data(graph.nodes)
-                .enter().append("circle")
+            node = node.data(force.nodes(), function(d) {
+                return d.id;
+            });
+            node.enter()
+                .append("circle")
+                .attr("r", 8)
                 .attr("class", "node")
-                .attr("r", 22)
                 .on("dblclick", dblclick)
                 .on("click", click)
+                .text(function(d) {
+                    return d.id + ""
+                })
                 .call(drag);
-        });
+            node.exit().remove();
+
+            force.start();
+        }
 
         function tick() {
+            node.attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; })
+
             link.attr("x1", function(d) { return d.source.x; })
                 .attr("y1", function(d) { return d.source.y; })
                 .attr("x2", function(d) { return d.target.x; })
                 .attr("y2", function(d) { return d.target.y; });
+        }
 
-            node.attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
+        function guid() {
+            function s4() {
+                return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+            }
+            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
         }
 
         function click(d) {
@@ -77,7 +147,15 @@
         }
 
         function dblclick(d) {
-            d3.select(this).classed("fixed", d.fixed = false);
+            var newNode = createNode();
+            nodes.push(newNode);
+
+            links.push({
+                source: newNode,
+                target: d
+            })
+
+            start();
         }
 
         function dragstart(d) {
@@ -88,5 +166,20 @@
             d3.select(this).classed("fixed", d.fixed = false);
         }
 
+        function zoom() {
+            var scale = d3.event.scale,
+                translation = d3.event.translate,
+                tbound = -h * scale,
+                bbound = h * scale,
+                lbound = (-w + m[1]) * scale,
+                rbound = (w - m[3]) * scale;
+                // limit translation to thresholds
+                // translation = [
+                //     Math.max(Math.min(translation[0], rbound), lbound),
+                //     Math.max(Math.min(translation[1], bbound), tbound)
+                // ];
+            d3.select(".drawarea")
+                .attr("transform", "translate(" + translation + ")" + " scale(" + scale + ")");
+        }
     </script>
 </body>
