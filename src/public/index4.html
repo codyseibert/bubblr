@@ -5,7 +5,7 @@
     html, body {
         margin: 0;
         padding: 0;
-        background-color: black;
+        background-color: #333;
         overflow: hidden;
     }
 
@@ -23,7 +23,7 @@
 
     .node .nodetext{
         fill: white;
-        font-size: 30px;
+        font-size: 10px;
     }
 
     .node .circle {
@@ -59,11 +59,16 @@
         var m = [40, 240, 40, 240];
 
         var force = d3.layout.force()
-            .linkDistance(500)
-            .linkStrength(0.8)
+            .linkDistance(function (d) {
+                if (getImage(d.target) === "images/folder.svg" && getImage(d.source) === "images/folder.svg") {
+                    return 100;
+                }
+                return 50;
+            })
+            .linkStrength(0.1)
             // .friction(0.9)
-            .charge(-5000)
-            // .gravity(0.1)
+            .charge(-200)
+            .gravity(0.1)
             // .theta(2)
             // .alpha(1)
             .on("tick", tick);
@@ -116,8 +121,68 @@
                 .on("zoom", zoom)
             ).on("dblclick.zoom", null);
 
-        nodes.push(createNode());
-        restart();
+        // nodes.push(createNode());
+        // restart();
+
+        d3.json("json/files.json", function(error, json) {
+            var ddata = json;
+            var idMap = {};
+            var i;
+
+            for (i = 0; i < json.length; i += 1) {
+                var n = json[i];
+
+                var newNode = {
+                    id: n.id,
+                    short: n.short,
+                    x: 0,
+                    y: 0
+                };
+
+                nodes.push(newNode);
+
+                idMap[n.id] = newNode
+            }
+
+            console.log(json);
+            console.log(idMap);
+
+            for (i = 0; i < json.length; i += 1) {
+                var n = json[i];
+                if (idMap[n.parent] !== undefined) {
+                    links.push({
+                        target: idMap[n.parent],
+                        source: idMap[n.id]
+                    });
+                }
+            }
+            console.log(links);
+
+            restart();
+        });
+
+        function getImage (d) {
+            if (d.id.indexOf('.css') >= 0) {
+                return "images/css.svg"
+            } else if (d.id.indexOf('.html') >= 0) {
+                return "images/html.svg"
+            } else if (d.id.indexOf('.java') >= 0) {
+                return "images/java.svg"
+            } else if (d.id.indexOf('.js') >= 0) {
+                return "images/javascript.svg"
+            } else if (d.id.indexOf('.jpg') >= 0) {
+                return "images/jpg.svg"
+            } else if (d.id.indexOf('.png') >= 0) {
+                return "images/jpg.svg"
+            } else if (d.id.indexOf('.coffee') >= 0) {
+                return "images/jpg.svg"
+            } else if (d.id.indexOf('.md') >= 0) {
+                return "images/jpg.svg"
+            } else if (d.id.indexOf('.styl') >= 0) {
+                return "images/jpg.svg"
+            }
+            return "images/folder.svg"
+        }
 
         function restart() {
             var link =
@@ -130,7 +195,7 @@
                 .attr("stroke", function(d) {
                     return "SkyBlue"
                 })
-                .style("stroke-width", 4);
+                .style("stroke-width", 1);
 
             link.exit().remove();
 
@@ -146,21 +211,21 @@
             var images = nodeEnter.append("svg:image")
                 .attr("class", "circle")
                 .attr("xlink:href", function(d) {
-                    return "images/folder.svg"
+                    return getImage(d);
                 })
                 .attr("x", -8)
                 .attr("y", -8)
-                .on("click", click)
+                // .on("click", click)
                 //.on("dblclick", dblclick)
-                .attr("width", 60)
-                .attr("height", 60);
+                .attr("width", 20)
+                .attr("height", 20);
 
             var texts = nodeEnter.append("svg:text")
                 .attr("class", "nodetext")
-                .attr("dx", 80)
-                .attr("dy", 35)
+                .attr("dx", 14)
+                .attr("dy", 8)
                 .text(function(d) {
-                    return "test.js"
+                    return d.short
                 });
 
             var rects = nodeEnter.append("rect")
