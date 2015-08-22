@@ -73,18 +73,17 @@ $.ajax({
         .append("g")
         .attr("class", "node")
         .attr("r", 5)
-        .on("click", clicked)
-        .call(force.drag);
-
-      g
-        .append("circle")
-        .attr("r", 10);
+        .on("click", clicked);
 
       texts = g
         .append("text")
         .attr("x", 24)
         .attr("dy", ".35em")
         .text(function(d) { return d.name; });
+
+      g
+        .append("circle")
+        .attr("r", 10);
 
       node = svg.selectAll(".node");
 
