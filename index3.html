@@ -140,11 +140,17 @@
         .data(force.nodes())
         .enter().append("g")
         .attr("class", "node")
-        .attr("class", getRandomIcon())
         .attr("class", "document")
         .on("mouseover", mouseover)
         .on("mouseout", mouseout)
         .call(force.drag);
+
+    // setInterval(function () {
+    //   d3.selectAll('g circle')
+    //     .style("fill", function(d) {
+    //       return "#FF0000";
+    //     });
+    // }, 1000);
 
     node.append("circle")
         .attr("r", 8);
@@ -175,6 +181,50 @@
         d3.select(this).select("circle").transition()
             .duration(750)
             .attr("r", 8);
+    }
+
+    function highlight_node_links(node,i){
+      var remainingNodes=[],
+          nextNodes=[];
+
+      var stroke_opacity = 0;
+      if( d3.select(this).attr("data-clicked") == "1" ){
+        d3.select(this).attr("data-clicked","0");
+        stroke_opacity = 0.2;
+      }else{
+        d3.select(this).attr("data-clicked","1");
+        stroke_opacity = 0.5;
+      }
+
+      var traverse = [{
+                        linkType : "sourceLinks",
+                        nodeType : "target"
+                      },{
+                        linkType : "targetLinks",
+                        nodeType : "source"
+                      }];
+
+      traverse.forEach(function(step){
+        node[step.linkType].forEach(function(link) {
+          remainingNodes.push(link[step.nodeType]);
+          highlight_link(link.id, stroke_opacity);
+        });
+
+        while (remainingNodes.length) {
+          nextNodes = [];
+          remainingNodes.forEach(function(node) {
+            node[step.linkType].forEach(function(link) {
+              nextNodes.push(link[step.nodeType]);
+              highlight_link(link.id, stroke_opacity);
+            });
+          });
+          remainingNodes = nextNodes;
+        }
+      });
+    }
+
+    function highlight_link(id,opacity){
+        d3.select("#link-"+id).style("stroke-opacity", opacity);
     }
 
 </script>
