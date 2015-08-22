@@ -52,6 +52,7 @@ $.ajax({
 
     var nodes = force.nodes(),
         links = force.links(),
+        texts = null,
         node = svg.selectAll(".node"),
         link = svg.selectAll(".link");
 
@@ -79,7 +80,7 @@ $.ajax({
         .append("circle")
         .attr("r", 10);
 
-      g
+      texts = g
         .append("text")
         .attr("x", 24)
         .attr("dy", ".35em")
@@ -88,6 +89,11 @@ $.ajax({
       node = svg.selectAll(".node");
 
       force.start();
+    }
+
+    function refresh() {
+      texts
+        .text(function(d) { return d.name; });
     }
 
     function clicked(node) {
