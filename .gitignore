@@ -1,4 +1,7 @@
 client/bower_components/
 client/node_modules/
+client/dist/
+client/tmp/
+
 server/bower_components/
 server/node_modules/
