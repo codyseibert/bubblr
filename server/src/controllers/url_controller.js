@@ -1,3 +1,4 @@
+var Promise = require('bluebird');
 var url = require('../models/url');
 
 module.exports = (function() {
@@ -36,10 +37,28 @@ module.exports = (function() {
     });
   };
 
+  destroy = function (req, res) {
+    var id = req.params.id;
+    url.findById(id).then(function(obj) {
+      return obj.destroy();
+    }).then(function() {
+      return url.findAll({where: {target: id}});
+    }).then(function(urls) {
+      return Promise.all(urls.map(function(u) {
+        u.target = -1
+        return u.save();
+      }));
+    }).then(function() {
+      res.status(200);
+      res.send('deleted')
+    });
+  };
+
   return {
     get: get,
     put: put,
-    post: post
+    post: post,
+    destroy: destroy
   };
 
 }());

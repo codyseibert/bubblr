@@ -5,7 +5,7 @@
 
   <body>
     <div id="info">
-      <form>
+      <form onsubmit="return false;">
         <label>url:</label>
         <input type="text" id="url"></input>
         <br>
@@ -17,6 +17,8 @@
           <option value="bookmark">bookmark</option>
           <option value="category">category</option>
         </select>
+        <br>
+        <button id="delete">delete</button>
       </form>
     </div>
     <script src="js/app.js"></script>

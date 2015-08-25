@@ -5,4 +5,5 @@ module.exports = (function() {
   app.get('/urls', urlController.get);
   app.post('/urls', urlController.post);
   app.put('/urls/:id', urlController.put);
+  app.delete('/urls/:id', urlController.destroy);
 }());
