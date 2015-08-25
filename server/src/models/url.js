@@ -6,6 +6,7 @@ module.exports = (function() {
     name: Sequelize.STRING,
     url: Sequelize.STRING,
     type: Sequelize.STRING,
+    src: Sequelize.TEXT,
     target: Sequelize.INTEGER
   });
 }());

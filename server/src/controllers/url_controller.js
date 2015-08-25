@@ -17,6 +17,7 @@ module.exports = (function() {
       obj.name = req.body.name;
       obj.url = req.body.url;
       obj.type = req.body.type;
+      obj.src = req.body.src;
       obj.target = req.body.target;
       obj.save().then(function() {
         res.status(200);
@@ -26,10 +27,12 @@ module.exports = (function() {
   };
 
   post = function (req, res) {
+
     obj = url.create({
       name: req.body.name,
       url: req.body.url,
       type: req.body.type,
+      src: req.body.src,
       target: req.body.target
     }).then(function(obj) {
       res.status(200);

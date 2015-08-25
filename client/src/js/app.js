@@ -52,8 +52,14 @@ $.ajax({
         .size([width, height])
         .nodes(d3.values(nodeMap))
         .links(links)
-        .linkDistance(50)
-        .charge(-200)
+        .linkDistance(function(link) {
+          var dist = 100;
+          if (link.target.type === 'category' && link.source.type === 'category') {
+            dist += 250;
+          }
+          return dist;
+        })
+        .charge(-500)
         .on("tick", tick);
 
     var svg = d3.select("body")
@@ -111,23 +117,12 @@ $.ajax({
         .attr('x', -15)
         .attr('y', -15)
         .attr('xlink:href', function (d) {
-          return '../images/w.svg';
-        })
-        .style('opacity', function (d) {
-          if (d.type !== 'bookmark') {
-            return 1;
-          }else {
-            return 0;
-          }
-        });
-
-      circles = g.append('circle')
-        .attr('r', 10)
-        .style('opacity', function (d) {
-          if (d.type === 'bookmark') {
-            return 1;
-          }else {
-            return 0;
+          if ((d.src === null || d.src === '') && d.type === 'category') {
+            return 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Blue_folder_seth_yastrov_01.svg/662px-Blue_folder_seth_yastrov_01.svg.png';
+          } else if (d.src === null || d.src === '') {
+            return 'http://www.svgopen.org/2008/papers/86-Achieving_3D_Effects_with_SVG/figure_1_sphere_object_with_a_virtual_lighting_source_effect.png'
+          } else {
+            return d.src;
           }
         });
 
@@ -149,20 +144,13 @@ $.ajax({
         .text(function(d) { return d.name; });
 
       images
-        .style('opacity', function (d) {
-          if (d.type !== 'bookmark') {
-            return 1;
-          }else {
-            return 0;
-          }
-        });
-
-      circles
-        .style('opacity', function (d) {
-          if (d.type === 'bookmark') {
-            return 1;
-          }else {
-            return 0;
+        .attr('xlink:href', function (d) {
+          if (d.src === null && d.type === 'category') {
+            return 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Blue_folder_seth_yastrov_01.svg/662px-Blue_folder_seth_yastrov_01.svg.png';
+          } else if (d.src === null) {
+            return 'http://www.svgopen.org/2008/papers/86-Achieving_3D_Effects_with_SVG/figure_1_sphere_object_with_a_virtual_lighting_source_effect.png'
+          } else {
+            return d.src;
           }
         });
     }
@@ -195,6 +183,7 @@ $.ajax({
           $('#url').val(n.url);
           $('#name').val(n.name);
           $('#category').val(n.type);
+          $('#src').val(n.src);
         } else if (clickCount === 2) {
           dblclick = true;
           window.open(n.url, '_blank');
@@ -206,6 +195,7 @@ $.ajax({
               name: 'LOCALHOST',
               url: 'http://localhost/',
               type: 'bookmark',
+              src: 'http://www.svgopen.org/2008/papers/86-Achieving_3D_Effects_with_SVG/figure_1_sphere_object_with_a_virtual_lighting_source_effect.png',
               target: n.id
             },
             success: function(created) {
@@ -252,6 +242,19 @@ $.ajax({
     $('#url').keyup(function(){
       if (selected === null) return;
       selected.url = $(this).val();
+      refresh();
+
+      $.ajax({
+        url: 'http://localhost:5001/urls/' + selected.id,
+        type: 'PUT',
+        data: selected,
+        success: function() {}
+      });
+    });
+
+    $('#src').keyup(function(){
+      if (selected === null) return;
+      selected.src = $(this).val();
       refresh();
 
       $.ajax({
