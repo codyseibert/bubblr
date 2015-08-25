@@ -13,7 +13,7 @@ $.ajax({
   url: 'http://localhost:5001/urls',
   type: 'GET',
   success: function(urls) {
-
+    console.log(urls);
     var nodeMap = {};
     var links = [];
 
@@ -38,6 +38,17 @@ $.ajax({
     var width = 960,
         height = 500;
 
+
+    var zoom = d3.behavior.zoom()
+         .scaleExtent([1, 10])
+         .on("zoom", zoomed);
+
+    var drag = d3.behavior.drag()
+        .origin(function(d) { return d; })
+        .on("dragstart", dragstarted)
+        .on("drag", dragged)
+        .on("dragend", dragended);
+
     var force = d3.layout.force()
         .size([width, height])
         .nodes(d3.values(nodeMap))
@@ -46,15 +57,35 @@ $.ajax({
         .charge(-200)
         .on("tick", tick);
 
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("body")
+        .append("svg")
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
+        .call(zoom);
+
+    var resized = function () {
+      width = $(window).width();
+      height = $(window).height();
+
+      svg
+        .attr("width", width)
+        .attr("height", height)
+    };
+    resized();
+
+    $(window).resize(function() {
+      resized();
+    });
+
+    var container = svg.append("g");
 
     var nodes = force.nodes(),
         links = force.links(),
         texts = null,
-        node = svg.selectAll(".node"),
-        link = svg.selectAll(".link");
+        images = null,
+        circles = null,
+        node = container.selectAll(".node"),
+        link = container.selectAll(".link");
 
     restart();
 
@@ -75,15 +106,37 @@ $.ajax({
         .attr("r", 5)
         .on("click", clicked);
 
+      images = g.append("svg:image")
+        .attr('width', 30)
+        .attr('height', 30)
+        .attr('x', -15)
+        .attr('y', -15)
+        .attr('xlink:href', function (d) {
+          return '../images/w.svg';
+        })
+        .style('opacity', function (d) {
+          if (d.type !== 'bookmark') {
+            return 1;
+          }else {
+            return 0;
+          }
+        });
+
+      circles = g.append('circle')
+        .attr('r', 10)
+        .style('opacity', function (d) {
+          if (d.type === 'bookmark') {
+            return 1;
+          }else {
+            return 0;
+          }
+        });
+
       texts = g
         .append("text")
         .attr("x", 24)
         .attr("dy", ".35em")
         .text(function(d) { return d.name; });
-
-      g
-        .append("circle")
-        .attr("r", 10);
 
       node = svg.selectAll(".node");
 
@@ -93,7 +146,44 @@ $.ajax({
     function refresh() {
       texts
         .text(function(d) { return d.name; });
+
+      images
+        .style('opacity', function (d) {
+          if (d.type !== 'bookmark') {
+            return 1;
+          }else {
+            return 0;
+          }
+        });
+        
+      circles
+        .style('opacity', function (d) {
+          if (d.type === 'bookmark') {
+            return 1;
+          }else {
+            return 0;
+          }
+        });
     }
+
+    function zoomed() {
+      container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    }
+
+    function dragstarted(d) {
+      d3.event.sourceEvent.stopPropagation();
+      d3.select(this).classed("dragging", true);
+      force.start();
+    }
+
+    function dragged(d) {
+      d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+    }
+
+    function dragended(d) {
+      d3.select(this).classed("dragging", false);
+    }
+
 
     function clicked(node) {
       clickCount++;
@@ -103,6 +193,7 @@ $.ajax({
           selected = node;
           $('#url').val(node.url);
           $('#name').val(node.name);
+          $('#category').val(node.type);
         } else if (clickCount === 2) {
           dblclick = true;
           window.open(node.url, '_blank');
@@ -113,6 +204,7 @@ $.ajax({
             data: {
               name: 'LOCALHOST',
               url: 'http://localhost/',
+              type: 'bookmark',
               target: node.id
             },
             success: function(created) {
@@ -159,6 +251,19 @@ $.ajax({
     $('#url').keyup(function(){
       if (selected === null) return;
       selected.url = $(this).val();
+      refresh();
+
+      $.ajax({
+        url: 'http://localhost:5001/urls/' + selected.id,
+        type: 'PUT',
+        data: selected,
+        success: function() {}
+      });
+    });
+
+    $('#category').change(function() {
+      if (selected === null) return;
+      selected.type = $(this).val();
       refresh();
 
       $.ajax({

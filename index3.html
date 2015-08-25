@@ -183,7 +183,7 @@
             .attr("r", 8);
     }
 
-    function highlight_node_links(node,i){
+    function highlight_node_links(node, i){
       var remainingNodes=[],
           nextNodes=[];
 
@@ -221,10 +221,6 @@
           remainingNodes = nextNodes;
         }
       });
-    }
-
-    function highlight_link(id,opacity){
-        d3.select("#link-"+id).style("stroke-opacity", opacity);
     }
 
 </script>

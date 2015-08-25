@@ -1,5 +1,7 @@
 body {
   background-color: black;
+  padding: 0px;
+  margin: 0px;
 }
 
 .link {
@@ -15,6 +17,10 @@ body {
   cursor: pointer;
 }
 
+.node {
+  cursor: pointer;
+}
+
 text {
   fill: #ccc;
   font: 12px sans-serif;
@@ -23,7 +29,7 @@ text {
 
 #info {
   color: white;
-  display: absolute;
+  position: fixed;
   left: 0px;
   top: 0px;
   background-color: #AAA;
@@ -39,4 +45,8 @@ text {
   font-size: 16px;
   border-radius: 6px;
   margin-bottom: 20px;
+}
+
+.star {
+  background-image: url('../images/w.svg');
 }
