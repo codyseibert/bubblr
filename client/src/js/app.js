@@ -42,6 +42,7 @@ $.ajax({
          .scaleExtent([1, 10])
          .on("zoom", zoomed);
 
+
     var drag = d3.behavior.drag()
         .origin(function(d) { return d; })
         .on("dragstart", dragstarted)
@@ -66,7 +67,8 @@ $.ajax({
         .append("svg")
         .attr("width", width)
         .attr("height", height)
-        .call(zoom);
+        .call(zoom)
+        .on("dblclick.zoom", null);
 
     var resized = function () {
       width = $(window).width();
